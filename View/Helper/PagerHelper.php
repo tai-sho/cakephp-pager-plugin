@@ -65,8 +65,15 @@ class PagerHelper extends AppHelper {
 
     }
 
-    public function prev($title = '<< Previous') {
+    public function prev($title = '<< Previous', $options = array(), $disabledTitle = null, $disabledOptions = array()) {
+        $default = array('tag' => 'span');
+        $out = '';
+        if($this->hasPage(2)) {
+            if($this->hasPrev()) {
+                $options += $default;
 
+            }
+        }
     }
 
     public function next($title = 'Next >>') {
@@ -158,5 +165,53 @@ class PagerHelper extends AppHelper {
                 $out = str_replace(array_keys($map), array_values($map), $options['format']);
         }
         return $out;
+    }
+
+    /**
+     * ページ数のクエリを付与したURLを返します。
+     * @param integer $page ページングのクエリに付与するページ
+     * @return string
+     */
+    protected function _getUrl($page = null) {
+        // TODO fullbaseUrlのメモ化
+        $url = Router::fullbaseUrl();
+        $requestUrl = parse_url(env('REQUEST_URI'));
+        if(isset($requestUrl['path'])) {
+            $url .= $requestUrl['path'];
+        }
+        if(is_numeric($page)) {
+            if($page === 1) {
+                $page = null;
+            }
+            $url .= $this->_convertUrlQuery(array(
+                    $this->settings['pageQuery'] => $page
+            ));
+        }
+        return $url;
+    }
+
+    /**
+     * 現在のクエリパラメータを取得し、$paramsで指定した値へ書き換えて返します。
+     * @param array $params URLパラメータを配列で指定
+     * @param boolean $op ?の付与
+     */
+    protected function _convertUrlQuery($params = array(), $op = true) {
+        $url = parse_url(env('REQUEST_URI'));
+        if(isset($url['query'])) {
+            parse_str($url['query'], $query);
+        } else {
+            $query = array();
+        }
+        foreach($params as $key => $value) {
+            if($key && is_null($value)) {
+                unset($query[$key]);
+            } else {
+                $query[$key] = $value;
+            }
+        }
+        $query = preg_replace('/%5B[0-9]%5D/', '%5B%5D', http_build_query($query));
+        $query = str_replace('=&', '&', $query);
+        $query = preg_replace('/=$/', '', $query);
+        return $query ? ($op ? '?' : ''). $query;
     }
 }
