@@ -113,4 +113,50 @@ class PagerHelper extends AppHelper {
     public function numbers() {
 
     }
+
+    /**
+     * ページングカウンター文字列を出力します。
+     * オプション
+     *  - 'separator' 値を区切るセパレータを指定します。
+     *  - 'format' 出力する文字列のフォーマットを指定します。
+     *      'pages'とした場合は「1 of 5」のように変換します。
+     *      'range'とした場合は「 1 - 3 of 13」のように変換します。
+     *      その他の場合は文字列の中に次の文字を含めることで各値に自動変換します。
+     *      `{:page}`, `{:pages}`, `{:current}`, `{:count}`, `{:start}`, `{:end}`
+     * @param array|string $options 設定
+     * @return mixed
+     */
+    public function counter($options = array()) {
+        if(is_string($options)) {
+            $options = array('format' => $options);
+        }
+        $options += array(
+                'format' => 'pages',
+                'separator' => 'of'
+        );
+        extract($this->settings);
+        switch($options['format']) {
+            case 'range':
+                if(!is_array($options['separator'])) {
+                    $options['separator'] = array('-', $options['separator']);
+                }
+                $out = $start. $options['separator'][0]. $end. $options['separator'][1];
+                $out .= $count;
+                break;
+            case 'pages':
+                $out = $page. $options['separator']. $pages;
+                break;
+            default:
+                $map = array(
+                        '{:page}' => $page,
+                        '{:pages}' => $pages,
+                        '{:current}' => $current,
+                        '{:count}' => $count,
+                        '{:start}' => $start,
+                        '{:end}' => $end
+                );
+                $out = str_replace(array_keys($map), array_values($map), $options['format']);
+        }
+        return $out;
+    }
 }
