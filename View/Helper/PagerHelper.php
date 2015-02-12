@@ -65,19 +65,60 @@ class PagerHelper extends AppHelper {
 
     }
 
+    /**
+     * 前のページへのリンクを生成します。
+     * 全体のページ数が1ページの場合は空文字を返します。
+     * @param string $title リンク文字列
+     * @param array $options オプション
+     * @param string $disabledTitle 前のページが存在しない場合にリンク文字列の代わりに表示する文字列
+     * @param array $disabledOptions 前のページが存在しない場合に適用するオプション
+     * @return string 前のページへのリンクタグ
+     */
     public function prev($title = '<< Previous', $options = array(), $disabledTitle = null, $disabledOptions = array()) {
         $default = array('tag' => 'span');
         $out = '';
         if($this->hasPage(2)) {
             if($this->hasPrev()) {
                 $options += $default;
-
+                $url = $this->_getUrl($this->settings['page'] - 1);
+                $link = $this->Html->link($title, $url, array('rel' => 'prev', 'escape' => false));
+                $class = isset($options['class']) ? $options['class'] : null;
+                $out = $this->Html->tag($options['tag'], $link, array('class' => $class));
+            } elseif($disabledTitle) {
+                $disabledOptions += $default;
+                $class = isset($disabledOptions['class']) ? $disabledOptions['class'] : null;
+                $out = $this->Html->tag($disabledOptions['tag'], $disabledTitle, array('class' => $class));
             }
         }
+        return $out;
     }
 
-    public function next($title = 'Next >>') {
-
+    /**
+     * 次のページへのリンクを生成します。
+     * 全体のページ数が1ページの場合は空文字を返します。
+     * @param string $title リンク文字列
+     * @param array $options オプション
+     * @param string $disabledTitle 次のページが存在しない場合にリンク文字列の代わりに表示する文字列
+     * @param array $disabledOptions 次のページが存在しない場合に適用するオプション
+     * @return string 次のページへのリンクタグ
+     */
+    public function next($title = 'Next >>', $options = array(), $disabledTitle = null, $disabledOptions = array()) {
+        $default = array('tag' => 'span');
+        $out = '';
+        if($this->hasPage(2)) {
+            if($this->hasNext()) {
+                $options += $default;
+                $url = $this->_getUrl($this->settings['page'] + 1);
+                $link = $this->Html->link($title, $url, array('rel' => 'next', 'escape' => false));
+                $class = isset($options['class']) ? $options['class'] : null;
+                $out = $this->Html->tag($options['tag'], $link, array('class' => $class));
+            } elseif($disabledTitle) {
+                $disabledOptions += $default;
+                $class = isset($disabledOptions['class']) ? $disabledOptions['class'] : null;
+                $out = $this->Html->tag($disabledOptions['tag'], $disabledTitle, array('class' => $class));
+            }
+        }
+        return $out;
     }
 
     /**
@@ -212,6 +253,6 @@ class PagerHelper extends AppHelper {
         $query = preg_replace('/%5B[0-9]%5D/', '%5B%5D', http_build_query($query));
         $query = str_replace('=&', '&', $query);
         $query = preg_replace('/=$/', '', $query);
-        return $query ? ($op ? '?' : ''). $query;
+        return $query ? ($op ? '?' : ''). $query : '';
     }
 }
