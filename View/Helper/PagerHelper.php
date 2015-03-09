@@ -3,6 +3,7 @@
  * PagerHelper
  * @author ShoheiTai
  * @link https://github.com/tai-sho/cakephp-pager-plugin
+ * @license MITLicense
  */
 class PagerHelper extends AppHelper {
 
@@ -55,14 +56,6 @@ class PagerHelper extends AppHelper {
             $out .= sprintf($link, 'prev', $url);
         }
         return $out;
-    }
-
-    public function first($title = '<< First') {
-
-    }
-
-    public function last($title = 'Last >>') {
-
     }
 
     /**
@@ -158,8 +151,60 @@ class PagerHelper extends AppHelper {
         return $result;
     }
 
-    public function numbers() {
-
+    /**
+     * ページリンクを生成します。
+     * @param array オプション
+     * @return string ページリンクタグ
+     */
+    public function numbers($options = array()) {
+        if($options === true) {
+            $options = array(
+                    'before' => ' | ', 'after' => ' | ', 'first' => 'first', 'last' => 'last'
+            );
+        }
+        $defaults = array(
+                'tag' => 'span', 'before' => null, 'after' => null, 'class' => null,
+                'modulus' => '8', 'separator' => ' | ', 'first' => null, 'last' => null, 'ellipsis' => '...',
+                'currentClass' => 'current', 'currentTag' => null
+        );
+        $options += $defaults;
+        extract($options);
+        unset($options);
+        $page = $this->settings['page'];
+        $halfModulus = (int)ceil($modulus / 2);
+        $maxPage = $this->settings['pages'];
+        if($maxPage <= $modulus) {
+            $first = 1;
+            $last = $maxPage;
+        } elseif($page <= $halfModulus) {
+            $first = 1;
+            $last = $modulus;
+        } elseif($page > $halfModulus && $page <= $maxPage - $halfModulus) {
+            $first = $Page - $halfModulus;
+            $last = $first + ($modulus - 1);
+        } elseif($page > $MaxPage - $halfModulus) {
+            $first = $page - $halfModulus;
+            $last = $maxPage;
+        }
+        $out = $before;
+        if($first !== $last) {
+            for($i = $first; $i <= $last; $i++) {
+                if($i == $page) {
+                    $nowClass = empty($class) ? $currentClass : "$class $currentClass";
+                    $nowTag = empty($currentTag) ? $tag : $currentTag;
+                    $out .= $this->Html->tag($nowTag, "<a href>$i</a>", array('class' => $nowClass));
+                } else {
+                    $url = $this->_getUrl($i);
+                    $link = $this->Html->link($i, $url);
+                    $out .= $this->Html->tag($tag, $link, array('class' => $class));
+                }
+                if($i + 1 <= $last) {
+                    $out .= $separator;
+                }
+            }
+            $out .= $after;
+            return $out;
+        }
     }
 
     /**
@@ -214,7 +259,6 @@ class PagerHelper extends AppHelper {
      * @return string
      */
     protected function _getUrl($page = null) {
-        // TODO fullbaseUrlのメモ化
         $url = Router::fullbaseUrl();
         $requestUrl = parse_url(env('REQUEST_URI'));
         if(isset($requestUrl['path'])) {
