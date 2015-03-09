@@ -180,9 +180,9 @@ class PagerHelper extends AppHelper {
             $first = 1;
             $last = $modulus;
         } elseif($page > $halfModulus && $page <= $maxPage - $halfModulus) {
-            $first = $Page - $halfModulus;
+            $first = $page - $halfModulus;
             $last = $first + ($modulus - 1);
-        } elseif($page > $MaxPage - $halfModulus) {
+        } elseif($page > $maxPage - $halfModulus) {
             $first = $page - $halfModulus;
             $last = $maxPage;
         }
