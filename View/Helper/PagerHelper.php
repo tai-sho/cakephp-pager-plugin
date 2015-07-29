@@ -171,7 +171,7 @@ class PagerHelper extends AppHelper {
         extract($options);
         unset($options);
         $page = $this->settings['page'];
-        $halfModulus = (int)ceil($modulus / 2);
+        $halfModulus = (int)floor($modulus / 2);
         $maxPage = $this->settings['pages'];
         if($maxPage <= $modulus) {
             $first = 1;
