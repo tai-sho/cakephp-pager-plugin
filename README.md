@@ -9,7 +9,14 @@ PagerPluginを使用することで初期化関数にページング対象とな
 * CakePHP2.x
 * PHP5.3以降
 
-# Documentation
+## Installation
+1.ダウンロードかclone後、cakephp-pager-pluginをPagerにリネーム  
+2.app/Plugin以下にコピー  
+3.app/Config/bootstrap.phpに一行追加  
+    CakePlugin::load('Pager');
+.
+
+## Documentation
 後ほど追記...
 
 ## Author
